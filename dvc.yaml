@@ -1,0 +1,42 @@
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+    - src/data/data_ingestion.py
+    params:
+    - data_ingestion.test_size # Pick this value from YAML file
+    outs:
+    - data/raw
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - data/raw
+    - src/data/data_preprocessing.py
+    outs:
+    - data/preprocessed
+  data_feature_eng:
+    cmd: python src/features/feature_eng.py
+    deps:
+    - data/interim
+    - src/features/feature_eng.py
+    params:
+    - feature_eng.max_features
+    outs:
+    - data/features
+  model_build:
+    cmd: python src/model/model_build.py
+    deps:
+    - data/features
+    - src/model/model_build.py
+    params:
+    - model_build.n_estimators
+    - model_build.learning_rate
+    outs:
+    - models/model.pkl
+  model_evaluate:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - models/model.pkl
+    - src/model/model_evaluation.py
+    metrics:
+    - reports/metrics.json
